@@ -128,17 +128,19 @@ public class CertificateUtils {
         // Test for it's validity
         certificate.checkValidity();
 
-        // Ensure that it's a push certificate
+        // Ensure that it's Push or VoIP certificate
         final Map<String, String> stringStringMap = CertificateUtils.splitCertificateSubject(certificate.getSubjectDN().getName());
         final String cn = stringStringMap.get("CN");
-        if (!cn.toLowerCase().contains("push")) {
-            throw new CertificateException("Not a push certificate - " + cn);
-        }
-
-        if (production && cn.toLowerCase().contains("apple development ios push services")) {
-            throw new CertificateEnvironmentMismatchException("Invalid environment for this certificate");
-        } else if (!production && cn.toLowerCase().contains("apple production ios push services")) {
-            throw new CertificateEnvironmentMismatchException("Invalid environment for this certificate");
+        
+        if (cn.toLowerCase().contains("push")) {
+        	if (production && cn.toLowerCase().contains("apple development ios push services")) {
+        		throw new CertificateEnvironmentMismatchException("Invalid environment for this certificate");
+        	} else if (!production && cn.toLowerCase().contains("apple production ios push services")) {
+        		throw new CertificateEnvironmentMismatchException("Invalid environment for this certificate");
+        	}
+            
+        } else if (!cn.toLowerCase().contains("voip")) {
+        	throw new CertificateException("Not Push or VoIP certificate - " + cn);
         }
     }
 }
